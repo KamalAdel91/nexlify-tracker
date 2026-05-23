@@ -20,9 +20,20 @@ export_python_type_annotations = True
 require_type_annotated_api_methods = True
 
 fixtures = [
-    {"doctype": "Custom Field"},
-    {"doctype": "Property Setter"},
-    {"doctype": "Client Script"},
-    {"doctype": "Server Script"},
-
+    {
+        "doctype": "Custom Field",
+        "filters": [["module", "=", "Nexlify Tracker"]]
+    },
+    {
+        "doctype": "Server Script",
+        "filters": [["module", "=", "Nexlify Tracker"]]
+    },
+    {
+        "doctype": "Client Script",
+        "filters": [["module", "=", "Nexlify Tracker"]]
+    },
+    {
+        "doctype": "Property Setter",
+        "filters": [["module", "=", "Nexlify Tracker"]]
+    }
 ]
