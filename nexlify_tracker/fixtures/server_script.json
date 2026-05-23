@@ -1,0 +1,40 @@
+[
+ {
+  "allow_guest": 0,
+  "api_method": null,
+  "cron_format": null,
+  "disabled": 0,
+  "docstatus": 0,
+  "doctype": "Server Script",
+  "doctype_event": "After Save",
+  "enable_rate_limit": 0,
+  "event_frequency": "All",
+  "modified": "2026-05-22 18:38:25.847460",
+  "module": "Nexlify Estimation",
+  "name": "Create Estimation on Workflow Change",
+  "rate_limit_count": 5,
+  "rate_limit_seconds": 86400,
+  "reference_doctype": "Opportunity",
+  "script": "# التأكد إننا في الحالة الصحيحة لمنع التكرار\r\nif doc.workflow_state == \"Estimation Team\":\r\n    \r\n    # 1. التأكد إن مفيش تقدير اتعمل قبل كدة لنفس الـ Opportunity\r\n    if not doc.nexlify_estimation:\r\n        \r\n        # 2. إعداد خريطة البيانات (Mapping) لسهولة التعديل مستقبلاً\r\n        # المفتاح هو اسم الحقل في Project Estimation، والقيمة هي القيمة من الـ Opportunity\r\n        field_mapping = {\r\n            \"nexlify_estimation_opportunity\": doc.name,\r\n            \"nexlify_estimation_customer_name\": doc.customer_name,\r\n            \"nexlify_estimation_date\": frappe.utils.today(),  # إضافة تاريخ اليوم تلقائياً\r\n            \"status\": \"Draft\",\r\n            \"nexlify_estimation_company_name\": doc.company,\r\n            # ضيف أي حقول تانية هنا بنفس الطريقة: \"target_field\": doc.source_field\r\n        }\r\n        \r\n        # 3. إنشاء سجل التقدير الفني الجديد باستخدام الـ Mapping\r\n        estimation = frappe.new_doc(\"Project Estimation\")\r\n        estimation.update(field_mapping)\r\n        \r\n        # إدراج السجل الجديد وتخطي الصلاحيات\r\n        estimation.insert(ignore_permissions=True)\r\n        \r\n        # 4. تحديث الحقل في الـ Opportunity برقم السجل الجديد\r\n        # نستخدم db_set لتجنب الـ Loops في الـ Server Script\r\n        doc.db_set(\"nexlify_estimation\", estimation.name)\r\n        \r\n        # 5. تنبيه للمستخدم\r\n        frappe.msgprint(f\"Project Estimation <b>{estimation.name}</b> has been created for customer <b>{doc.customer_name}</b>.\")",
+  "script_type": "DocType Event"
+ },
+ {
+  "allow_guest": 0,
+  "api_method": null,
+  "cron_format": null,
+  "disabled": 0,
+  "docstatus": 0,
+  "doctype": "Server Script",
+  "doctype_event": "After Submit",
+  "enable_rate_limit": 0,
+  "event_frequency": "All",
+  "modified": "2026-05-23 02:55:11.264429",
+  "module": "Nexlify Estimation",
+  "name": "Update Opportunity State on Estimation Submit",
+  "rate_limit_count": 5,
+  "rate_limit_seconds": 86400,
+  "reference_doctype": "Project Estimation",
+  "script": "if doc.nexlify_estimation_opportunity:\r\n    opp = frappe.get_doc(\"Opportunity\", doc.nexlify_estimation_opportunity)\r\n    \r\n    target_state = \"Finalize Opportunity\"\r\n    \r\n    if opp.workflow_state != target_state:\r\n        old_state = opp.workflow_state\r\n        \r\n        opp.db_set(\"workflow_state\", target_state)\r\n        \r\n        # جلب الـ role من الـ Workflow State نفسه\r\n        allowed_role = frappe.db.get_value(\r\n            \"Workflow Document State\",\r\n            {\"parent\": frappe.db.get_value(\"Workflow\", {\"document_type\": \"Opportunity\", \"is_active\": 1}, \"name\"),\r\n             \"state\": target_state},\r\n            \"allow_edit\"\r\n        ) or \"All\"\r\n        \r\n        version = frappe.new_doc(\"Version\")\r\n        version.ref_doctype = \"Opportunity\"\r\n        version.docname = opp.name\r\n        version.data = '{\"changed\": [[\"workflow_state\", \"' + old_state + '\", \"' + target_state + '\"]]}'\r\n        version.owner = frappe.session.user\r\n        version.insert(ignore_permissions=True)\r\n        \r\n        workflow_name = frappe.db.get_value(\"Workflow\", {\"document_type\": \"Opportunity\", \"is_active\": 1}, \"name\")\r\n        \r\n        if workflow_name:\r\n            action_log = frappe.new_doc(\"Workflow Action\")\r\n            action_log.update({\r\n                \"doctype\": \"Workflow Action\",\r\n                \"reference_name\": opp.name,\r\n                \"reference_type\": \"Opportunity\",\r\n                \"workflow_state\": target_state,\r\n                \"workflow_name\": workflow_name,\r\n                \"status\": \"Completed\",\r\n                \"completed_by\": frappe.session.user,\r\n                \"completed_by_role\": allowed_role\r\n            })\r\n            action_log.insert(ignore_permissions=True, ignore_links=True)\r\n        \r\n        frappe.msgprint(\"Opportunity \" + opp.name + \" has been moved to \" + target_state)",
+  "script_type": "DocType Event"
+ }
+]

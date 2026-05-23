@@ -1,0 +1,58 @@
+{
+ "actions": [],
+ "allow_bulk_edit": 1,
+ "allow_rename": 1,
+ "creation": "2026-05-22 07:30:27.314490",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "nexlify_tracker_task_stage",
+  "nexlify_tracker_task_description",
+  "nexlify_tracker_task_field_name",
+  "nexlify_tracker_task_link_field_name",
+  "nexlify_tracker_task_link_doc_type"
+ ],
+ "fields": [
+  {
+   "fieldname": "nexlify_tracker_task_stage",
+   "fieldtype": "Data",
+   "label": "Stage"
+  },
+  {
+   "fieldname": "nexlify_tracker_task_description",
+   "fieldtype": "Data",
+   "label": "Task Description"
+  },
+  {
+   "fieldname": "nexlify_tracker_task_field_name",
+   "fieldtype": "Data",
+   "label": "Field Name"
+  },
+  {
+   "fieldname": "nexlify_tracker_task_link_field_name",
+   "fieldtype": "Data",
+   "label": "Link Field Name"
+  },
+  {
+   "fieldname": "nexlify_tracker_task_link_doc_type",
+   "fieldtype": "Link",
+   "label": "Link DocType",
+   "options": "DocType"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2026-05-22 07:34:34.977750",
+ "modified_by": "Administrator",
+ "module": "Nexlify Tracker",
+ "name": "Nexlify Tracker Task",
+ "owner": "Administrator",
+ "permissions": [],
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": []
+}
