@@ -49,7 +49,7 @@ function _draw_tracker_now(frm) {
 function render_sidebar_tracker_html(frm, stages, currentState, history, tasks) {
     $('#nexlify-smart-tracker').remove();
 
-    const display_stages = stages.slice(0, -1);
+    const display_stages = stages;
     const current_index = stages.findIndex(s => s.state === currentState);
     const is_dark = $('html').attr('data-theme') === 'dark';
     const is_submitted = frm.doc.docstatus === 1;

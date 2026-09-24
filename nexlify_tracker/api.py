@@ -20,14 +20,16 @@ def get_universal_tracker_config(
     # ---------------------------------------------------
     # 1. Get active workflow
     # ---------------------------------------------------
-    workflow_name = frappe.db.get_value(
+    workflow = frappe.db.get_value(
         "Workflow",
         {
             "document_type": doctype,
             "is_active": 1
         },
-        "name"
+        ["name", "workflow_state_field"],
+        as_dict=True
     )
+    workflow_name = workflow.name if workflow else None
 
     if not workflow_name:
         return {
@@ -46,8 +48,21 @@ def get_universal_tracker_config(
         order_by="idx asc"
     )
 
-    # Default workflow field
-    workflow_field = "workflow_state"
+    # One entry per state, in order. States styled "Danger" (Rejected, Cancelled...)
+    # are side exits, not steps, so they are not shown.
+    seen = set()
+    main_stages = []
+    for s in stages:
+        if s.state in seen:
+            continue
+        seen.add(s.state)
+        if frappe.db.get_value("Workflow State", s.state, "style") == "Danger":
+            continue
+        main_stages.append(s)
+    stages = main_stages
+
+    # Workflow field from the Workflow itself (a Nexlify Tracker config can still override it)
+    workflow_field = workflow.workflow_state_field or "workflow_state"
 
     # ---------------------------------------------------
     # 3. Get Nexlify Tracker config (optional)
