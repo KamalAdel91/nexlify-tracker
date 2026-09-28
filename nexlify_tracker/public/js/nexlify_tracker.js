@@ -53,7 +53,7 @@ function render_sidebar_tracker_html(frm, stages, currentState, history, tasks) 
     const current_index = stages.findIndex(s => s.state === currentState);
     const is_dark = $('html').attr('data-theme') === 'dark';
     const is_submitted = frm.doc.docstatus === 1;
-    const is_mobile = $(window).width() <= 767;
+    const is_mobile = $(window).width() <= 991;
 
     const tracker_id = 'nexlify-smart-tracker';
     const main_body_id = 'nexlify-main-body';
