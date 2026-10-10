@@ -56,8 +56,7 @@ def get_universal_tracker_config(
         if s.state in seen:
             continue
         seen.add(s.state)
-        if frappe.db.get_value("Workflow State", s.state, "style") == "Danger":
-            continue
+        s.side_exit = frappe.db.get_value("Workflow State", s.state, "style") == "Danger"
         main_stages.append(s)
     stages = main_stages
 
@@ -184,6 +183,12 @@ def get_universal_tracker_config(
 
             except Exception:
                 pass
+
+    # Side exits (styled "Danger": On Hold, Rejected, Cancelled...) are not steps:
+    # they show only while the document is in one, or once its history went through it.
+    current_state = frappe.db.get_value(doctype, docname, workflow_field) if docname else None
+    visited = {h["workflow_state"] for h in history}
+    stages = [{"state": s.state} for s in stages if not s.side_exit or s.state == current_state or s.state in visited]
 
     # ---------------------------------------------------
     # Return response
