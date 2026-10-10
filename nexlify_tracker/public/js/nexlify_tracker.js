@@ -78,7 +78,7 @@ Object.assign(nexlify_tracker, {
 						${avatar}
 						<div style="display: flex; flex-direction: column; gap: 1px; min-width: 0; flex: 1;">
 							<div style="font-weight: 600; color: ${text}; white-space: normal; word-break: break-word; line-height: 1.2;">${e(s.full_name)}</div>
-							<div style="font-size: 9px; color: #888; line-height: 1.1;">${e(frappe.datetime.global_date_format(s.on))}</div>
+							<div style="font-size: 9px; color: #888; line-height: 1.1;">${e(frappe.datetime.str_to_user(s.on).replace(/:\d{2}$/, ""))}</div>
 						</div>
 					</div>`;
 			}
