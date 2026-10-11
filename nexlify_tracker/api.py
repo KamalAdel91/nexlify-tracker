@@ -13,6 +13,13 @@ def get_universal_tracker_config(doctype: str, docname: str | None = None) -> di
 	"""
 	frappe.has_permission(doctype, "read", doc=docname, throw=True)
 
+	# An app may describe a DocType's steps itself (hooks: nexlify_tracker_stages = {doctype: method}). The method
+	# returns the same shape as below (stages may also carry a note and a badge, the panel a banner), or None.
+	for method in reversed(frappe.get_hooks("nexlify_tracker_stages", {}).get(doctype) or []):
+		config = frappe.get_attr(method)(doctype, docname)
+		if config:
+			return config
+
 	workflow = frappe.db.get_value(
 		"Workflow", {"document_type": doctype, "is_active": 1}, ["name", "workflow_state_field"], as_dict=True
 	)

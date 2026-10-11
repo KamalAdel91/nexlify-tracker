@@ -11,7 +11,8 @@ app_license = "mit"
 documents = ["Nexlify Tracker", "Nexlify Tracker Task"]
 
 # --- Global JavaScript ---
-app_include_js = "/assets/nexlify_tracker/js/nexlify_tracker.js"
+# a .bundle.js gets a hashed file name on every build, so browsers never keep an old copy
+app_include_js = "nexlify_tracker.bundle.js"
 
 # --- Permissions (empty for now) ---
 has_permission = {}

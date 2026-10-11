@@ -1,5 +1,6 @@
 // nexlify_tracker.js - Business Process panel on every form whose DocType has an active Workflow.
-// The server decides each step's status (done, current, exit, skipped, todo); this file only draws it.
+// The server decides each step's status (done, current, exit, skipped, todo); this file only draws it,
+// with a step's note and badge and the panel's banner when the server sends them.
 frappe.provide("nexlify_tracker");
 
 Object.assign(nexlify_tracker, {
@@ -106,7 +107,7 @@ Object.assign(nexlify_tracker, {
 					<div class="nexlify-dot" style="background: ${color}; border: 2px solid ${color};">${icon}</div>
 					<div style="flex: 1; min-width: 0; margin-top: 4px;">
 						<div class="stage-header">
-							<span class="stage-title" style="color: ${title_color};">${e(__(s.state))}</span>
+							<span class="stage-title" style="color: ${title_color};">${e(__(s.state))}${s.badge ? ` <span style="font-size: 9px; font-weight: 600; padding: 1px 6px; border-radius: 8px; background: ${dark ? "#1e3a5f" : "#e8f0fe"}; color: #1a73e8;">${e(s.badge)}</span>` : ""}${s.note ? `<div style="font-size: 10px; font-weight: 400; color: #888; margin-top: 2px;">${e(s.note)}</div>` : ""}</span>
 							<span class="stage-arrow" style="transform: rotate(${open ? 90 : 0}deg);">▶</span>
 						</div>
 						<div class="stage-details" style="display: ${open ? "block" : "none"};">${tasks}${who}</div>
@@ -123,7 +124,7 @@ Object.assign(nexlify_tracker, {
 						<span class="main-arrow" style="font-size: 12px; color: #888; font-weight: bold;">▼</span>
 					</div>
 					<div class="main-body" style="display: ${mobile ? "none" : "block"}; overflow: hidden; ${mobile ? `margin-top: 10px; padding: 15px; border-radius: 8px; background: ${dark ? "#111827" : "#ffffff"}; border: 1px solid ${dark ? "#1e293b" : "#e2e8f0"};` : ""}">
-						${steps_html}
+						${config.banner ? `<div style="font-size: 11px; color: #e53e3e; border: 1px solid #e53e3e55; background: #e53e3e14; border-radius: 6px; padding: 6px 8px; margin-bottom: 12px;">${e(config.banner)}</div>` : ""}${steps_html}
 					</div>
 				</div>
 			</div>`);
